@@ -1,8 +1,32 @@
 <?php
+require_once "dbconnect.php";
 if(isset($_POST['login']))
 {   
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $sql = "select * from admin where email=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$email]);
+    $adminInfo=$stmt->fetch(); //single row returns
+    // $adminInfo['ID'], $adminInfo['email'], $adminInfo['password'], $adminInfo['remark']
+
+    if($adminInfo)
+    {
+        if(password_verify($password, $adminInfo['password'])) //checks password and hash match
+        {
+            echo "login success";
+        }
+        else 
+        {
+            //password and hash doesn't match
+            $errorMessage = "Email or password might be incorrect!!";
+        }
+    }
+    else
+    {
+        //admin's filled email does not exist
+        $errorMessage = "Email or password might be incorrect!!";
+    }
 
     // echo"email is $email and password is $password";
 }
@@ -29,7 +53,13 @@ if(isset($_POST['login']))
         <div class="row">
             <div class="col-md-6 mx-auto py-5">
                 
-            <form action="adminlogin.php" method="post">    
+            <form action="adminLogin.php" method="post">  
+                <?php
+                if(isset($errorMessage))
+                {
+                    echo "<p class='alert alert-danger' >$errorMessage</p>";
+                }
+                ?>  
                 <div class="mb-3">
                     <label for="" class="form-label">Email</label>
                     <input type="email" class="form-control" name="email">
