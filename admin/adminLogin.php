@@ -1,39 +1,33 @@
 <?php
-require_once "dbconnect.php";
-if(isset($_POST['login']))
-{   
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $sql = "select * from admin where email=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$email]);
-    $adminInfo=$stmt->fetch(); //single row returns
-    // $adminInfo['ID'], $adminInfo['email'], $adminInfo['password'], $adminInfo['remark']
 
-    if($adminInfo)
+    require_once "dbconnect.php";
+
+    if(isset($_POST["login"]))//$_Post is super global array
     {
-        if(password_verify($password, $adminInfo['password'])) //checks password and hash match
-        {
-            echo "login success";
-        }
-        else 
-        {
-            //password and hash doesn't match
-            $errorMessage = "Email or password might be incorrect!!";
-        }
+        $email=$_POST["email"];//retrieve email value of users
+        $password=$_POST["password"]; //retrieve password of users
+
+        $sql="select * from admin where email=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$email]);
+        $adminInfo=$stmt->fetch();//single row returns
+        //$admninfo['Id'], $admninfo['Password'], $admninfo['Remark']
+
+        if($adminInfo)//checks password and hash match {
+            if( password_verify($password,$adminInfo["password"])){
+                echo "Login success!";
+
+            } else{//password and hash doesn't match.
+                $errorMessage="Email or password might be incorrect!";
+
+            }//if end
+
+            else{//admin's filled email does not exist.
+                $errorMessage="Email or password might be incorrect!";
+            }
     }
-    else
-    {
-        //admin's filled email does not exist
-        $errorMessage = "Email or password might be incorrect!!";
-    }
-
-    // echo"email is $email and password is $password";
-}
-
-
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,33 +42,41 @@ if(isset($_POST['login']))
         <div class="row">
             <?php
             require_once("navbarcopy.php");
+
+
             ?>
         </div>
-        <div class="row">
-            <div class="col-md-6 mx-auto py-5">
-                
-            <form action="adminLogin.php" method="post">  
-                <?php
+
+
+     <div class="row">
+        <div class="col-md-6 mx-auto py-5">
+        <form action="<?php echo $_SERVER['PHP_SELF'] ;?>" method="post">
+
+            <?php 
                 if(isset($errorMessage))
                 {
-                    echo "<p class='alert alert-danger' >$errorMessage</p>";
+                    echo "<p class='alert alert-danger'>$errorMessage</p>";
+
                 }
-                ?>  
-                <div class="mb-3">
-                    <label for="" class="form-label">Email</label>
-                    <input type="email" class="form-control" name="email">
-                </div>
-                <div class="mb-3">
-                    <label for="">Password</label>
-                    <input type="password" class="form-control" name="password">
-                </div>
-                <button type="submit" class="btn btn-outline-primary" name="login">Login
+            ?>
 
-                </button>
 
-            </form>
+            <div class="mb-3">
+                <label for="" class="form-label">Email</label>
+                <input type="email" class="form-control" name="email">
+
             </div>
+            <div class="mb-3">
+                <label for="">Password</label>
+                <input type="password" class="form-control" name="password">
+            </div>
+            <button type="submit" class="btn btn-outline-primary" name="login">Login
+
+            </button>
+        </form>
         </div>
+
     </div>
+
 </body>
 </html>
